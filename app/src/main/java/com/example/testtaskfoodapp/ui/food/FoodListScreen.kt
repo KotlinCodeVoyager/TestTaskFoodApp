@@ -1,10 +1,14 @@
 package com.example.testtaskfoodapp.ui.food
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,6 +48,7 @@ import com.example.testtaskfoodapp.R
 import com.example.testtaskfoodapp.ui.common.noRippleClickable
 import com.example.testtaskfoodapp.ui.food.vm.FoodViewModel
 import com.example.testtaskfoodapp.ui.main.helper.LoadingState
+import kotlinx.coroutines.delay
 
 @Composable
 fun FoodListScreen(
@@ -47,81 +56,93 @@ fun FoodListScreen(
     onFoodItem: (item: Item) -> Unit
 ) {
 
-    val list = viewModel.getItemsFoodList.observeAsState()
-    val listValue = list.value
+    val listValue = viewModel.getItemsFoodList.observeAsState().value
 
     var visible by remember { mutableStateOf(false) }
 
     val statistic = viewModel.showLoading.observeAsState().value
 
-    if (statistic == LoadingState.StopLoading){ visible = true }
+    LaunchedEffect(statistic == LoadingState.StopLoading) {
+        delay(500)
+        visible = true
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(90.dp)
-                .background(color = Color(0xFFFF469E))
-        ) {
-
-            Text(
-                text = listValue?.title ?: "", modifier = Modifier
-                    .align(Alignment.Center),
-                style = TextStyle(
-                    color = Color.White,
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight(600)
-                )
-            )
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_refresh_button),
-                contentDescription = "",
+    Scaffold(
+        topBar = {
+            Box(
                 modifier = Modifier
-                    .padding(end = 20.dp)
-                    .size(35.dp)
-                    .align(Alignment.CenterEnd)
-                    .noRippleClickable {
-                        visible = false
-                        viewModel.reloadFoodList()
-                        // onFoodItem(listValue?.items?.first()?.id.toString())
-                    }
-            )
+                    .fillMaxWidth()
+                    .height(90.dp)
+                    .background(color = Color(0xFFFF469E))
+            ) {
 
-        }
+                Text(
+                    text = listValue?.title ?: "", modifier = Modifier
+                        .align(Alignment.Center),
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight(600)
+                    )
+                )
 
-        if(visible) {
-            AnimatedVisibility(visible = visible) {
-                if (listValue?.items != null) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_refresh_button),
+                    contentDescription = "",
+                    modifier = Modifier
+                        .padding(end = 20.dp)
+                        .size(35.dp)
+                        .align(Alignment.CenterEnd)
+                        .noRippleClickable {
+                            visible = false
+                            viewModel.reloadFoodList()
+                        }
+                )
 
-                    LazyColumn(
-                        modifier = Modifier
+            }
 
-                            .fillMaxSize()
-                            .padding(horizontal = 24.dp)
-                    ) {
-                        items(listValue.items) { food ->
-                            FoodItem(food) {
-                                onFoodItem(food)
-                            }
+        },
+        floatingActionButton = {},
+        floatingActionButtonPosition = FabPosition.Center
+    ) { paddingValues ->
+
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(animationSpec = tween(durationMillis = 2000)) +
+                    slideInVertically(initialOffsetY = { it }),
+            exit = fadeOut(animationSpec = tween(durationMillis = 2000)) +
+                    slideOutVertically(targetOffsetY = { -it })
+        ) {
+            if (listValue?.items != null) {
+
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(top = paddingValues.calculateTopPadding())
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp)
+                ) {
+                    items(listValue.items) { food ->
+                        FoodItem(food) {
+                            onFoodItem(food)
                         }
                     }
                 }
             }
         }
-        else { Loader() }
+
+        if (!visible) {
+            Loader(paddingValues.calculateTopPadding())
+        }
     }
 }
 
 @Composable
-fun Loader(){
+fun Loader(paddingTop: Dp) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loader))
 
     Box(
         modifier = Modifier
+            .padding(top = paddingTop)
             .fillMaxSize()
             .background(Color.Transparent)
     ) {

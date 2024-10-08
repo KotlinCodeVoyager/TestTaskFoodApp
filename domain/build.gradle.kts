@@ -41,4 +41,12 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+// Mockito
+//    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+//    testImplementation("")
+
+    androidTestImplementation ("org.mockito:mockito-core:3.0.0")
+    androidTestImplementation ("org.mockito:mockito-android:2.24.5")
+    androidTestImplementation ("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
+
 }

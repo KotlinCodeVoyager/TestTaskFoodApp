@@ -12,14 +12,17 @@ class FoodListMapper : FoodMapperInterface {
             null -> null
             else -> ListFoodModel(
                 title = remoteFoodList.title,
-                items = remoteFoodList.items.map {
-                    Item(
-                        id = it.id,
-                        name = it.name,
-                        imageUrl = "$baseUrl${it.image}",
-                        color = "FF${it.color}".toLong(16),
-                    )
-                }
+                items = remoteFoodList.items
+                    .filter {
+                        it.image.isNotBlank()
+                    }.map {
+                        Item(
+                            id = it.id,
+                            name = it.name,
+                            imageUrl = "$baseUrl${it.image}",
+                            color = "FF${it.color}".toLong(16),
+                        )
+                    }
             )
         }
     }

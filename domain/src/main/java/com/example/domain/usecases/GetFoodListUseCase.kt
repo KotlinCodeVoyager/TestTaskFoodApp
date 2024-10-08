@@ -1,10 +1,10 @@
 package com.example.domain.usecases
 
 import com.example.domain.interfaces.APIRepositoryInterface
-import com.example.domain.models.ListFoodModel
 import com.example.domain.interfaces.FoodMapperInterface
+import com.example.domain.models.ListFoodModel
 
-class GetFoodListUseCase (
+class GetFoodListUseCase(
     private val searchFoodDataSource: APIRepositoryInterface,
     private val foodMapper: FoodMapperInterface
 ) {
