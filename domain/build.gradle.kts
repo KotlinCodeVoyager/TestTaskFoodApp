@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("plugin.parcelize")
 }
 
 android {
@@ -30,6 +31,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    viewBinding {
+        enable = true
+    }
+
 }
 
 dependencies {
@@ -45,8 +50,8 @@ dependencies {
 //    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 //    testImplementation("")
 
-    androidTestImplementation ("org.mockito:mockito-core:3.0.0")
-    androidTestImplementation ("org.mockito:mockito-android:2.24.5")
-    androidTestImplementation ("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
+    androidTestImplementation("org.mockito:mockito-core:3.0.0")
+    androidTestImplementation("org.mockito:mockito-android:2.24.5")
+    androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
 
 }

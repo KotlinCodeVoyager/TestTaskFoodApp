@@ -39,7 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.wear.compose.material.Text
 import coil.compose.AsyncImage
-import com.example.domain.models.Item
+import com.example.domain.models.FoodDataModel
+import com.example.testtaskfoodapp.BuildConfig
 import com.example.testtaskfoodapp.R
 import com.example.testtaskfoodapp.ui.common.noRippleClickable
 import com.example.testtaskfoodapp.ui.food.vm.FoodItemViewModel
@@ -48,20 +49,24 @@ import java.util.Locale
 
 @Composable
 fun FoodItemScreen(
-    item: Item,
-    viewModel: FoodItemViewModel = hiltViewModel(),
+    item: FoodDataModel,
     onBack: () -> Unit
 ) {
+
+    val viewModel: FoodItemViewModel = hiltViewModel()
+
     LaunchedEffect(Unit) {
         viewModel.getFoodItem(item.id)
     }
-    val itemFoodValue = viewModel.getItemsFoodItem.observeAsState().value
+    val itemFoodValue = viewModel.getItemsFoodItem.observeAsState()
 
     var visible by remember { mutableStateOf(false) }
 
-    val statisticValue = viewModel.showLoading.observeAsState().value
+    val statisticValue = viewModel.showLoading.observeAsState()
 
-    LaunchedEffect(statisticValue == LoadingState.StopLoading) { visible = true }
+    if (statisticValue.value == LoadingState.StopLoading) {
+        visible = true
+    }
 
     Scaffold(
         topBar = {
@@ -73,7 +78,7 @@ fun FoodItemScreen(
             ) {
 
                 Text(
-                    text = itemFoodValue?.id?.replaceFirstChar {
+                    text = itemFoodValue.value?.id?.replaceFirstChar {
                         if (it.isLowerCase()) it.titlecase(
                             Locale.getDefault()
                         ) else it.toString()
@@ -111,7 +116,7 @@ fun FoodItemScreen(
             exit = fadeOut(animationSpec = tween(durationMillis = 2000)) +
                     slideOutVertically(targetOffsetY = { it })
         ) {
-            if (itemFoodValue?.id != null) {
+            if (itemFoodValue.value?.id != null) {
 
                 LazyColumn(
                     modifier = Modifier
@@ -121,8 +126,8 @@ fun FoodItemScreen(
                 ) {
                     item {
                         FoodTextItem(
-                            itemFoodValue.text,
-                            "https://test-task-server.mediolanum.f17y.com/images/${item.imageUrl}",
+                            itemFoodValue.value?.text ?: "",
+                            "${BuildConfig.BASE_URL}/images/${item.imageUrl}",
                             item.color
                         )
                     }
@@ -173,5 +178,5 @@ fun FoodTextItem(text: String, imageUrl: String, color: Long) {
 @Preview(showBackground = true)
 @Composable
 fun FoodItemScreenPreview() {
-    FoodItemScreen(Item("", "", "", 5L)) {}
+    FoodItemScreen(FoodDataModel("", "", "", 5L)) {}
 }

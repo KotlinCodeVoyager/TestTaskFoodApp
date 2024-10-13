@@ -38,24 +38,29 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Text
 import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.domain.models.FoodDataModel
 import com.example.domain.models.Item
 import com.example.testtaskfoodapp.R
+import com.example.testtaskfoodapp.ui.common.navigateSendData
 import com.example.testtaskfoodapp.ui.common.noRippleClickable
 import com.example.testtaskfoodapp.ui.food.vm.FoodViewModel
+import com.example.testtaskfoodapp.ui.main.FOOD_DATA
+import com.example.testtaskfoodapp.ui.main.FOOD_ITEM
 import com.example.testtaskfoodapp.ui.main.helper.LoadingState
 import kotlinx.coroutines.delay
 
 @Composable
 fun FoodListScreen(
-    viewModel: FoodViewModel = hiltViewModel(),
-    onFoodItem: (item: Item) -> Unit
+    navController: NavHostController?
 ) {
 
+    val viewModel: FoodViewModel = hiltViewModel()
     val listValue = viewModel.getItemsFoodList.observeAsState().value
 
     var visible by remember { mutableStateOf(false) }
@@ -123,7 +128,11 @@ fun FoodListScreen(
                 ) {
                     items(listValue.items) { food ->
                         FoodItem(food) {
-                            onFoodItem(food)
+                            navController?.navigateSendData(
+                                FOOD_ITEM,
+                                FOOD_DATA,
+                                FoodDataModel.toDataModel(food)
+                            )
                         }
                     }
                 }
@@ -187,5 +196,5 @@ fun FoodItem(foodItem: Item, onFoodItemClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun FoodListScreenPreview() {
-    FoodListScreen { _ -> }
+    FoodListScreen(null)
 }

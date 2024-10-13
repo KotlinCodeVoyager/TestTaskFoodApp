@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.hilt)
+    kotlin("plugin.parcelize")
     kotlin("kapt")
 }
 
@@ -71,6 +72,10 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+
+    viewBinding {
+        enable = true
     }
 
 }
